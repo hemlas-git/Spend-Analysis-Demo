@@ -1,0 +1,466 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="index,follow"><title>Personal Spend Dashboard (demo)</title>
+<style>
+:root{--font-anthropic-sans:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--font-anthropic-serif:Georgia,"Times New Roman",serif;
+--color-bg:#f7f6f2;--color-panel:#ffffff;--color-fg:#1f1e1b;--color-fg-muted:#6a675f;--color-border-line:#e3e0d6;--color-ok:#1b7f5c;--color-warn:#a15c07;--color-bad:#b42318;
+--cds-font-size-caption:12px;--cds-font-size-body:14px;--cds-font-size-heading:16px;--cds-font-size-title:28px;--cds-font-weight-medium:600;
+--cds-gap-sm:8px;--cds-gap-md:16px;--cds-pad-xs:4px;--cds-pad-sm:8px;--cds-pad-md:12px;--cds-pad-lg:16px;--cds-radius:10px;
+--cds-chart-grid:#e9e6dc;--cds-chart-axis:#1f6f6b;--cds-chart-muted:#a9bdbb;--cds-chart-status-critical:#b42318;--cds-surface-popover:#ffffff;--cds-border:#d8d4c8;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.12);color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--color-bg:#141413;--color-panel:#1e1d1b;--color-fg:#f1efe9;--color-fg-muted:#a5a199;--color-border-line:#34322c;--color-ok:#5fc49b;--color-warn:#f0b35a;--color-bad:#f97066;
+--cds-chart-grid:#2d2b26;--cds-chart-axis:#5fc4bd;--cds-chart-muted:#3d5d5b;--cds-chart-status-critical:#f97066;--cds-surface-popover:#262520;--cds-border:#3d3a33;--cds-shadow-popover:0 4px 14px rgba(0,0,0,.5);color-scheme:dark}}
+body{margin:0;background:var(--color-bg);color:var(--color-fg);font:14px/1.5 var(--font-anthropic-sans);padding:24px max(16px,env(safe-area-inset-left,0px)) 64px}
+body{background:linear-gradient(180deg,#fff7f2,#f3f0ff 60%,#eefaf6)!important}@media (prefers-color-scheme:dark){body{background:#17131f!important}}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+</head><body>
+<script>
+(function(){const RAW={"kpis":{"c":["metric","currency","value"],"r":[["total_spend","INR","544556.56"],["gross_spend","INR","554366.73"],["refunds_total","INR","9810.17"],["monthly_avg","INR","77793.79"],["order_count","INR","303"],["avg_order_value","INR","1829.59"],["top_merchant","INR","Amazon"],["mom_change_pct","INR","12.6"],["mom_compared_months","INR","2026-08 -> 2026-09"],["total_spend","USD","24.5"],["gross_spend","USD","24.5"],["refunds_total","USD","0.0"],["monthly_avg","USD","4.08"],["order_count","USD","1"],["avg_order_value","USD","24.5"],["top_merchant","USD","Uber"]]},"merch":{"c":["merchant","currency","spend","orders","avg_order_value"],"r":[["Amazon","INR","94392.3","33","2860.37"],["Urban Ladder","INR","80997","2","40498.5"],["Society maintenance","INR","57000","6","9500.0"],["BigBasket","INR","39328.0","24","1638.67"],["Zomato","INR","35454.67","42","844.16"],["Blinkit","INR","30511.9","25","1220.48"],["Wooden Street","INR","24999","1","24999.0"],["MakeMyTrip","INR","23400","1","23400.0"],["Flipkart","INR","21499","1","21499.0"],["Cash withdrawal (ATM)","INR","19000","7","2714.29"],["Nykaa","INR","18812.85","7","2687.55"],["LIC Premium","INR","18200","2","9100.0"],["Uber","INR","16883.98","115","146.82"],["Havells India Limited","INR","14200","1","14200.0"],["Electricity (BESCOM)","INR","13130.64","6","2188.44"],["IndiGo","INR","11800","1","11800.0"],["Cult Fit","INR","10539.54","3","3513.18"],["Airtel Broadband","INR","4794","6","799.0"],["Netflix","INR","3894","6","649.0"],["Myntra","INR","2680.8","1","2680.8"],["Apple Media Services","INR","1314","6","219.0"],["Apollo Pharmacy","INR","890.88","1","890.88"],["Spotify","INR","834","6","139.0"],["Uber","USD","24.5","1","24.5"]]},"subs":{"c":["merchant","currency","amount","months_seen","last_charged"],"r":[["Netflix","INR","649","6","2026-10-05"],["Spotify","INR","139","6","2026-10-09"],["Apple Media Services","INR","219","6","2026-10-09"],["Airtel Broadband","INR","799","6","2026-10-12"]]},"top":{"c":["date","merchant","currency","amount","view_url"],"r":[["2026-06-20","Urban Ladder","INR","48999","0"],["2026-08-02","Urban Ladder","INR","31998","1"],["2026-07-14","Wooden Street","INR","24999","2"],["2026-09-19","MakeMyTrip","INR","23400","3"],["2026-09-07","Flipkart","INR","21499","4"],["2026-08-21","Havells India Limited","INR","14200","5"],["2026-09-12","Amazon","INR","12499","6"],["2026-09-20","IndiGo","INR","11800","7"],["2026-07-22","Amazon","INR","10999","8"],["2026-05-03","Society maintenance","INR","9500","9"]]},"txns":{"c":["date","month","merchant","currency","type","amount","signed_amount","category","budget_category"],"r":[["2026-04-17","2026-04","Uber","INR","purchase","98.66","98.66","Travel & Transport","Transportation"],["2026-04-17","2026-04","Blinkit","INR","purchase","1402.15","1402.15","Groceries","Groceries"],["2026-04-18","2026-04","Uber","INR","purchase","87.24","87.24","Travel & Transport","Transportation"],["2026-04-18","2026-04","BigBasket","INR","purchase","1279.51","1279.51","Groceries","Groceries"],["2026-04-19","2026-04","Uber","INR","purchase","233.11","233.11","Travel & Transport","Transportation"],["2026-04-19","2026-04","Amazon","INR","purchase","1503.08","1503.08","Shopping","Shopping & Entertainment"],["2026-04-20","2026-04","Uber","INR","purchase","81.93","81.93","Travel & Transport","Transportation"],["2026-04-20","2026-04","Zomato","INR","purchase","545.66","545.66","Food & Dining","Restaurants & Dining"],["2026-04-22","2026-04","Zomato","INR","purchase","747.22","747.22","Food & Dining","Restaurants & Dining"],["2026-04-22","2026-04","Amazon","INR","purchase","2206.96","2206.96","Shopping","Shopping & Entertainment"],["2026-04-25","2026-04","Amazon","INR","refund","1895.21","-1895.21","Shopping","Shopping & Entertainment"],["2026-04-25","2026-04","Uber","INR","purchase","101.93","101.93","Travel & Transport","Transportation"],["2026-04-25","2026-04","Zomato","INR","purchase","406.01","406.01","Food & Dining","Restaurants & Dining"],["2026-04-25","2026-04","BigBasket","INR","purchase","1320.95","1320.95","Groceries","Groceries"],["2026-04-27","2026-04","Uber","INR","purchase","103.48","103.48","Travel & Transport","Transportation"],["2026-04-27","2026-04","Cult Fit","INR","purchase","2756.84","2756.84","Fitness","Fitness & Learning"],["2026-04-30","2026-04","Uber","INR","purchase","109.67","109.67","Travel & Transport","Transportation"],["2026-04-30","2026-04","Zomato","INR","purchase","673.05","673.05","Food & Dining","Restaurants & Dining"],["2026-04-30","2026-04","Blinkit","INR","purchase","250.5","250.5","Groceries","Groceries"],["2026-04-30","2026-04","Amazon","INR","purchase","695.71","695.71","Shopping","Shopping & Entertainment"],["2026-04-30","2026-04","Myntra","INR","purchase","2680.8","2680.8","Fashion","Personal & Family Care"],["2026-05-01","2026-05","Uber","INR","purchase","93.34","93.34","Travel & Transport","Transportation"],["2026-05-02","2026-05","Uber","INR","purchase","227.48","227.48","Travel & Transport","Transportation"],["2026-05-02","2026-05","Zomato","INR","purchase","371.94","371.94","Food & Dining","Restaurants & Dining"],["2026-05-02","2026-05","BigBasket","INR","purchase","1149.22","1149.22","Groceries","Groceries"],["2026-05-02","2026-05","Nykaa","INR","purchase","3737.65","3737.65","Fashion","Personal & Family Care"],["2026-05-03","2026-05","Uber","INR","purchase","101.74","101.74","Travel & Transport","Transportation"],["2026-05-03","2026-05","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-05-05","2026-05","Uber","INR","purchase","123.09","123.09","Travel & Transport","Transportation"],["2026-05-05","2026-05","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-05-06","2026-05","Uber","INR","purchase","111.89","111.89","Travel & Transport","Transportation"],["2026-05-07","2026-05","Blinkit","INR","purchase","1670.26","1670.26","Groceries","Groceries"],["2026-05-09","2026-05","Uber","INR","purchase","94.14","94.14","Travel & Transport","Transportation"],["2026-05-09","2026-05","Zomato","INR","purchase","1209.61","1209.61","Food & Dining","Restaurants & Dining"],["2026-05-09","2026-05","BigBasket","INR","purchase","2305.07","2305.07","Groceries","Groceries"],["2026-05-09","2026-05","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-05-09","2026-05","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-05-10","2026-05","Uber","INR","purchase","254.47","254.47","Travel & Transport","Transportation"],["2026-05-11","2026-05","Uber","INR","purchase","125.66","125.66","Travel & Transport","Transportation"],["2026-05-12","2026-05","Uber","INR","purchase","180.84","180.84","Travel & Transport","Transportation"],["2026-05-12","2026-05","Cash withdrawal (ATM)","INR","purchase","3000","3000","Other","Cash, Checks & Misc"],["2026-05-12","2026-05","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-05-12","2026-05","Electricity (BESCOM)","INR","bill","2331.81","2331.81","Bills & Utilities","Home & Utilities"],["2026-05-13","2026-05","Amazon","INR","purchase","2714.49","2714.49","Shopping","Shopping & Entertainment"],["2026-05-15","2026-05","Amazon","INR","refund","1616.72","-1616.72","Shopping","Shopping & Entertainment"],["2026-05-15","2026-05","Uber","INR","purchase","186.38","186.38","Travel & Transport","Transportation"],["2026-05-16","2026-05","BigBasket","INR","purchase","1851.17","1851.17","Groceries","Groceries"],["2026-05-17","2026-05","Uber","INR","purchase","115.72","115.72","Travel & Transport","Transportation"],["2026-05-17","2026-05","Zomato","INR","purchase","986.0","986.0","Food & Dining","Restaurants & Dining"],["2026-05-19","2026-05","Uber","INR","purchase","151.99","151.99","Travel & Transport","Transportation"],["2026-05-20","2026-05","Uber","INR","purchase","73.44","73.44","Travel & Transport","Transportation"],["2026-05-21","2026-05","Uber","INR","purchase","120.46","120.46","Travel & Transport","Transportation"],["2026-05-21","2026-05","Zomato","INR","purchase","1090.05","1090.05","Food & Dining","Restaurants & Dining"],["2026-05-21","2026-05","Amazon","INR","purchase","1946.79","1946.79","Shopping","Shopping & Entertainment"],["2026-05-22","2026-05","Blinkit","INR","purchase","373.68","373.68","Groceries","Groceries"],["2026-05-23","2026-05","Zomato","INR","purchase","1163.42","1163.42","Food & Dining","Restaurants & Dining"],["2026-05-23","2026-05","Blinkit","INR","purchase","2104.97","2104.97","Groceries","Groceries"],["2026-05-23","2026-05","BigBasket","INR","purchase","1476.56","1476.56","Groceries","Groceries"],["2026-05-24","2026-05","Uber","INR","purchase","90.8","90.8","Travel & Transport","Transportation"],["2026-05-24","2026-05","Zomato","INR","purchase","397.86","397.86","Food & Dining","Restaurants & Dining"],["2026-05-25","2026-05","Uber","INR","purchase","135.93","135.93","Travel & Transport","Transportation"],["2026-05-25","2026-05","Zomato","INR","purchase","587.93","587.93","Food & Dining","Restaurants & Dining"],["2026-05-25","2026-05","Blinkit","INR","purchase","1826.12","1826.12","Groceries","Groceries"],["2026-05-27","2026-05","Uber","INR","purchase","228.13","228.13","Travel & Transport","Transportation"],["2026-05-28","2026-05","Amazon","INR","purchase","3580.95","3580.95","Shopping","Shopping & Entertainment"],["2026-05-29","2026-05","Uber","INR","purchase","99.93","99.93","Travel & Transport","Transportation"],["2026-05-30","2026-05","Uber","INR","purchase","137.75","137.75","Travel & Transport","Transportation"],["2026-05-30","2026-05","Zomato","INR","purchase","712.55","712.55","Food & Dining","Restaurants & Dining"],["2026-05-30","2026-05","BigBasket","INR","purchase","1241.67","1241.67","Groceries","Groceries"],["2026-05-30","2026-05","Nykaa","INR","purchase","3269.43","3269.43","Fashion","Personal & Family Care"],["2026-05-31","2026-05","Uber","INR","purchase","189.64","189.64","Travel & Transport","Transportation"],["2026-05-31","2026-05","Zomato","INR","purchase","1259.76","1259.76","Food & Dining","Restaurants & Dining"],["2026-05-31","2026-05","Amazon","INR","purchase","3781.92","3781.92","Shopping","Shopping & Entertainment"],["2026-06-01","2026-06","Uber","INR","purchase","187.55","187.55","Travel & Transport","Transportation"],["2026-06-01","2026-06","Zomato","INR","purchase","1133.61","1133.61","Food & Dining","Restaurants & Dining"],["2026-06-02","2026-06","Amazon","INR","purchase","2977.24","2977.24","Shopping","Shopping & Entertainment"],["2026-06-03","2026-06","Uber","INR","purchase","191.05","191.05","Travel & Transport","Transportation"],["2026-06-03","2026-06","Apollo Pharmacy","INR","purchase","890.88","890.88","Health","Health"],["2026-06-03","2026-06","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-06-04","2026-06","Uber","INR","purchase","83.32","83.32","Travel & Transport","Transportation"],["2026-06-04","2026-06","Amazon","INR","purchase","2351.36","2351.36","Shopping","Shopping & Entertainment"],["2026-06-05","2026-06","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-06-06","2026-06","Uber","INR","purchase","190.23","190.23","Travel & Transport","Transportation"],["2026-06-06","2026-06","Zomato","INR","purchase","919.72","919.72","Food & Dining","Restaurants & Dining"],["2026-06-06","2026-06","BigBasket","INR","purchase","2077.91","2077.91","Groceries","Groceries"],["2026-06-07","2026-06","Uber","INR","purchase","111.36","111.36","Travel & Transport","Transportation"],["2026-06-08","2026-06","Uber","INR","purchase","86.31","86.31","Travel & Transport","Transportation"],["2026-06-08","2026-06","Amazon","INR","purchase","2275.81","2275.81","Shopping","Shopping & Entertainment"],["2026-06-09","2026-06","Uber","INR","purchase","87.16","87.16","Travel & Transport","Transportation"],["2026-06-09","2026-06","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-06-09","2026-06","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-06-10","2026-06","Uber","INR","purchase","164.6","164.6","Travel & Transport","Transportation"],["2026-06-10","2026-06","Amazon","INR","purchase","4004.84","4004.84","Shopping","Shopping & Entertainment"],["2026-06-11","2026-06","Uber","INR","purchase","132.95","132.95","Travel & Transport","Transportation"],["2026-06-11","2026-06","Cult Fit","INR","purchase","3719.72","3719.72","Fitness","Fitness & Learning"],["2026-06-12","2026-06","Uber","INR","purchase","144.13","144.13","Travel & Transport","Transportation"],["2026-06-12","2026-06","Blinkit","INR","purchase","2239.64","2239.64","Groceries","Groceries"],["2026-06-12","2026-06","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-06-12","2026-06","Electricity (BESCOM)","INR","bill","2161.96","2161.96","Bills & Utilities","Home & Utilities"],["2026-06-13","2026-06","Uber","INR","purchase","254.5","254.5","Travel & Transport","Transportation"],["2026-06-13","2026-06","BigBasket","INR","purchase","2234.74","2234.74","Groceries","Groceries"],["2026-06-13","2026-06","Nykaa","INR","purchase","3548.93","3548.93","Fashion","Personal & Family Care"],["2026-06-14","2026-06","Uber","INR","purchase","209.15","209.15","Travel & Transport","Transportation"],["2026-06-15","2026-06","Uber","INR","purchase","135.3","135.3","Travel & Transport","Transportation"],["2026-06-15","2026-06","LIC Premium","INR","bill","9100","9100","Insurance","Finance"],["2026-06-16","2026-06","Uber","INR","purchase","101.79","101.79","Travel & Transport","Transportation"],["2026-06-16","2026-06","Zomato","INR","purchase","547.48","547.48","Food & Dining","Restaurants & Dining"],["2026-06-17","2026-06","Uber","INR","purchase","106.56","106.56","Travel & Transport","Transportation"],["2026-06-17","2026-06","Zomato","INR","purchase","674.86","674.86","Food & Dining","Restaurants & Dining"],["2026-06-17","2026-06","Blinkit","INR","purchase","764.12","764.12","Groceries","Groceries"],["2026-06-18","2026-06","Uber","INR","purchase","169.59","169.59","Travel & Transport","Transportation"],["2026-06-18","2026-06","Amazon","INR","purchase","1382.31","1382.31","Shopping","Shopping & Entertainment"],["2026-06-19","2026-06","Uber","INR","purchase","121.49","121.49","Travel & Transport","Transportation"],["2026-06-20","2026-06","Uber","INR","purchase","204.81","204.81","Travel & Transport","Transportation"],["2026-06-20","2026-06","BigBasket","INR","purchase","900.3","900.3","Groceries","Groceries"],["2026-06-20","2026-06","Urban Ladder","INR","purchase","48999","48999","Shopping","Home & Utilities"],["2026-06-21","2026-06","Uber","INR","purchase","90.72","90.72","Travel & Transport","Transportation"],["2026-06-21","2026-06","Zomato","INR","purchase","846.25","846.25","Food & Dining","Restaurants & Dining"],["2026-06-22","2026-06","Zomato","INR","purchase","1093.18","1093.18","Food & Dining","Restaurants & Dining"],["2026-06-23","2026-06","Amazon","INR","purchase","2345.3","2345.3","Shopping","Shopping & Entertainment"],["2026-06-23","2026-06","Cash withdrawal (ATM)","INR","purchase","3000","3000","Other","Cash, Checks & Misc"],["2026-06-25","2026-06","Uber","INR","purchase","193.43","193.43","Travel & Transport","Transportation"],["2026-06-25","2026-06","Zomato","INR","purchase","534.41","534.41","Food & Dining","Restaurants & Dining"],["2026-06-26","2026-06","Uber","INR","purchase","202.21","202.21","Travel & Transport","Transportation"],["2026-06-26","2026-06","Nykaa","INR","purchase","3043.47","3043.47","Fashion","Personal & Family Care"],["2026-06-27","2026-06","Uber","INR","purchase","225.8","225.8","Travel & Transport","Transportation"],["2026-06-27","2026-06","BigBasket","INR","purchase","1401.39","1401.39","Groceries","Groceries"],["2026-06-29","2026-06","Uber","INR","purchase","144.73","144.73","Travel & Transport","Transportation"],["2026-06-30","2026-06","Blinkit","INR","purchase","1678.52","1678.52","Groceries","Groceries"],["2026-06-30","2026-06","Cash withdrawal (ATM)","INR","purchase","3000","3000","Other","Cash, Checks & Misc"],["2026-07-01","2026-07","Uber","INR","purchase","149.83","149.83","Travel & Transport","Transportation"],["2026-07-02","2026-07","Uber","INR","purchase","204.0","204.0","Travel & Transport","Transportation"],["2026-07-02","2026-07","Zomato","INR","purchase","864.45","864.45","Food & Dining","Restaurants & Dining"],["2026-07-03","2026-07","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-07-04","2026-07","Amazon","INR","purchase","3211.11","3211.11","Shopping","Shopping & Entertainment"],["2026-07-05","2026-07","Blinkit","INR","purchase","2025.94","2025.94","Groceries","Groceries"],["2026-07-05","2026-07","Amazon","INR","purchase","3090.73","3090.73","Shopping","Shopping & Entertainment"],["2026-07-05","2026-07","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-07-06","2026-07","Uber","INR","purchase","164.34","164.34","Travel & Transport","Transportation"],["2026-07-06","2026-07","Zomato","INR","purchase","1234.5","1234.5","Food & Dining","Restaurants & Dining"],["2026-07-08","2026-07","Uber","INR","purchase","100.53","100.53","Travel & Transport","Transportation"],["2026-07-08","2026-07","Blinkit","INR","purchase","405.15","405.15","Groceries","Groceries"],["2026-07-09","2026-07","Uber","INR","purchase","95.26","95.26","Travel & Transport","Transportation"],["2026-07-09","2026-07","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-07-09","2026-07","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-07-10","2026-07","Uber","INR","purchase","123.09","123.09","Travel & Transport","Transportation"],["2026-07-11","2026-07","Zomato","INR","purchase","411.56","411.56","Food & Dining","Restaurants & Dining"],["2026-07-11","2026-07","BigBasket","INR","purchase","1794.72","1794.72","Groceries","Groceries"],["2026-07-11","2026-07","Cash withdrawal (ATM)","INR","purchase","2000","2000","Other","Cash, Checks & Misc"],["2026-07-12","2026-07","Blinkit","INR","purchase","881.41","881.41","Groceries","Groceries"],["2026-07-12","2026-07","Amazon","INR","purchase","1039.34","1039.34","Shopping","Shopping & Entertainment"],["2026-07-12","2026-07","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-07-12","2026-07","Electricity (BESCOM)","INR","bill","1938.94","1938.94","Bills & Utilities","Home & Utilities"],["2026-07-13","2026-07","Uber","INR","purchase","217.78","217.78","Travel & Transport","Transportation"],["2026-07-13","2026-07","Blinkit","INR","purchase","1531.72","1531.72","Groceries","Groceries"],["2026-07-14","2026-07","Uber","INR","purchase","183.89","183.89","Travel & Transport","Transportation"],["2026-07-14","2026-07","Amazon","INR","purchase","1576.27","1576.27","Shopping","Shopping & Entertainment"],["2026-07-14","2026-07","Wooden Street","INR","purchase","24999","24999","Shopping","Home & Utilities"],["2026-07-15","2026-07","Uber","INR","purchase","82.02","82.02","Travel & Transport","Transportation"],["2026-07-15","2026-07","Zomato","INR","purchase","725.53","725.53","Food & Dining","Restaurants & Dining"],["2026-07-16","2026-07","Uber","INR","purchase","128.44","128.44","Travel & Transport","Transportation"],["2026-07-17","2026-07","Uber","INR","purchase","107.47","107.47","Travel & Transport","Transportation"],["2026-07-17","2026-07","Amazon","INR","purchase","3816.36","3816.36","Shopping","Shopping & Entertainment"],["2026-07-18","2026-07","Uber","INR","purchase","72.82","72.82","Travel & Transport","Transportation"],["2026-07-18","2026-07","Amazon","INR","purchase","2726.56","2726.56","Shopping","Shopping & Entertainment"],["2026-07-19","2026-07","Zomato","INR","purchase","815.98","815.98","Food & Dining","Restaurants & Dining"],["2026-07-20","2026-07","Uber","INR","purchase","80.14","80.14","Travel & Transport","Transportation"],["2026-07-21","2026-07","Uber","INR","purchase","146.85","146.85","Travel & Transport","Transportation"],["2026-07-22","2026-07","Uber","INR","purchase","116.94","116.94","Travel & Transport","Transportation"],["2026-07-22","2026-07","Amazon","INR","purchase","2493.14","2493.14","Shopping","Shopping & Entertainment"],["2026-07-22","2026-07","Nykaa","INR","purchase","1241.42","1241.42","Fashion","Personal & Family Care"],["2026-07-22","2026-07","Amazon","INR","purchase","10999","10999","Shopping","Shopping & Entertainment"],["2026-07-23","2026-07","Uber","INR","purchase","149.81","149.81","Travel & Transport","Transportation"],["2026-07-24","2026-07","Uber","INR","purchase","114.7","114.7","Travel & Transport","Transportation"],["2026-07-25","2026-07","Uber","INR","purchase","87.43","87.43","Travel & Transport","Transportation"],["2026-07-25","2026-07","BigBasket","INR","purchase","1981.94","1981.94","Groceries","Groceries"],["2026-07-25","2026-07","Amazon","INR","purchase","3160.57","3160.57","Shopping","Shopping & Entertainment"],["2026-07-26","2026-07","Zomato","INR","purchase","1164.22","1164.22","Food & Dining","Restaurants & Dining"],["2026-07-28","2026-07","Uber","INR","purchase","240.34","240.34","Travel & Transport","Transportation"],["2026-07-28","2026-07","Amazon","INR","purchase","2258.65","2258.65","Shopping","Shopping & Entertainment"],["2026-07-29","2026-07","Uber","INR","purchase","104.6","104.6","Travel & Transport","Transportation"],["2026-07-29","2026-07","Zomato","INR","purchase","1239.58","1239.58","Food & Dining","Restaurants & Dining"],["2026-08-01","2026-08","Uber","INR","purchase","103.58","103.58","Travel & Transport","Transportation"],["2026-08-01","2026-08","Blinkit","INR","purchase","2012.62","2012.62","Groceries","Groceries"],["2026-08-01","2026-08","BigBasket","INR","purchase","1986.7","1986.7","Groceries","Groceries"],["2026-08-01","2026-08","Cash withdrawal (ATM)","INR","purchase","2000","2000","Other","Cash, Checks & Misc"],["2026-08-02","2026-08","Uber","INR","purchase","125.28","125.28","Travel & Transport","Transportation"],["2026-08-02","2026-08","Nykaa","INR","purchase","1559.05","1559.05","Fashion","Personal & Family Care"],["2026-08-02","2026-08","Cash withdrawal (ATM)","INR","purchase","3000","3000","Other","Cash, Checks & Misc"],["2026-08-02","2026-08","Urban Ladder","INR","purchase","31998","31998","Shopping","Home & Utilities"],["2026-08-03","2026-08","Uber","INR","purchase","169.39","169.39","Travel & Transport","Transportation"],["2026-08-03","2026-08","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-08-04","2026-08","Uber","INR","purchase","222.29","222.29","Travel & Transport","Transportation"],["2026-08-04","2026-08","Amazon","INR","purchase","864.3","864.3","Shopping","Shopping & Entertainment"],["2026-08-05","2026-08","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-08-06","2026-08","Uber","INR","purchase","81.69","81.69","Travel & Transport","Transportation"],["2026-08-06","2026-08","Zomato","INR","purchase","526.37","526.37","Food & Dining","Restaurants & Dining"],["2026-08-07","2026-08","Uber","INR","purchase","168.47","168.47","Travel & Transport","Transportation"],["2026-08-08","2026-08","BigBasket","INR","purchase","1537.77","1537.77","Groceries","Groceries"],["2026-08-09","2026-08","Amazon","INR","purchase","3775.97","3775.97","Shopping","Shopping & Entertainment"],["2026-08-09","2026-08","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-08-09","2026-08","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-08-11","2026-08","Uber","INR","purchase","102.26","102.26","Travel & Transport","Transportation"],["2026-08-12","2026-08","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-08-12","2026-08","Electricity (BESCOM)","INR","bill","2036.74","2036.74","Bills & Utilities","Home & Utilities"],["2026-08-13","2026-08","Uber","INR","purchase","75.04","75.04","Travel & Transport","Transportation"],["2026-08-14","2026-08","Uber","INR","purchase","76.25","76.25","Travel & Transport","Transportation"],["2026-08-14","2026-08","Zomato","INR","purchase","940.87","940.87","Food & Dining","Restaurants & Dining"],["2026-08-15","2026-08","Uber","INR","purchase","82.89","82.89","Travel & Transport","Transportation"],["2026-08-15","2026-08","Zomato","INR","purchase","1163.67","1163.67","Food & Dining","Restaurants & Dining"],["2026-08-15","2026-08","BigBasket","INR","purchase","2522.77","2522.77","Groceries","Groceries"],["2026-08-16","2026-08","Uber","INR","purchase","116.85","116.85","Travel & Transport","Transportation"],["2026-08-16","2026-08","Zomato","INR","purchase","382.17","382.17","Food & Dining","Restaurants & Dining"],["2026-08-17","2026-08","Uber","INR","purchase","95.2","95.2","Travel & Transport","Transportation"],["2026-08-18","2026-08","Uber","INR","purchase","214.37","214.37","Travel & Transport","Transportation"],["2026-08-19","2026-08","Uber","INR","purchase","168.54","168.54","Travel & Transport","Transportation"],["2026-08-19","2026-08","Zomato","INR","purchase","795.49","795.49","Food & Dining","Restaurants & Dining"],["2026-08-19","2026-08","Blinkit","INR","purchase","1467.11","1467.11","Groceries","Groceries"],["2026-08-20","2026-08","Uber","INR","purchase","124.78","124.78","Travel & Transport","Transportation"],["2026-08-20","2026-08","Blinkit","INR","purchase","997.78","997.78","Groceries","Groceries"],["2026-08-20","2026-08","Amazon","INR","purchase","3011.31","3011.31","Shopping","Shopping & Entertainment"],["2026-08-21","2026-08","Zomato","INR","purchase","1124.48","1124.48","Food & Dining","Restaurants & Dining"],["2026-08-21","2026-08","Havells India Limited","INR","purchase","14200","14200","Shopping","Home & Utilities"],["2026-08-22","2026-08","Blinkit","INR","purchase","952.29","952.29","Groceries","Groceries"],["2026-08-22","2026-08","BigBasket","INR","purchase","2478.46","2478.46","Groceries","Groceries"],["2026-08-23","2026-08","Uber","INR","purchase","151.33","151.33","Travel & Transport","Transportation"],["2026-08-24","2026-08","Blinkit","INR","purchase","1500.4","1500.4","Groceries","Groceries"],["2026-08-25","2026-08","Uber","INR","purchase","200.92","200.92","Travel & Transport","Transportation"],["2026-08-27","2026-08","Uber","INR","purchase","251.6","251.6","Travel & Transport","Transportation"],["2026-08-28","2026-08","Uber","INR","purchase","127.4","127.4","Travel & Transport","Transportation"],["2026-08-28","2026-08","Amazon","INR","purchase","3854.47","3854.47","Shopping","Shopping & Entertainment"],["2026-08-28","2026-08","Cult Fit","INR","purchase","4062.98","4062.98","Fitness","Fitness & Learning"],["2026-08-29","2026-08","Uber","INR","purchase","256.37","256.37","Travel & Transport","Transportation"],["2026-08-29","2026-08","Blinkit","INR","purchase","803.01","803.01","Groceries","Groceries"],["2026-08-29","2026-08","BigBasket","INR","purchase","909.38","909.38","Groceries","Groceries"],["2026-08-31","2026-08","Uber","INR","purchase","152.18","152.18","Travel & Transport","Transportation"],["2026-09-01","2026-09","Blinkit","INR","purchase","2095.86","2095.86","Groceries","Groceries"],["2026-09-02","2026-09","Uber","INR","purchase","228.06","228.06","Travel & Transport","Transportation"],["2026-09-02","2026-09","Blinkit","INR","purchase","790.13","790.13","Groceries","Groceries"],["2026-09-03","2026-09","Nykaa","INR","purchase","2412.9","2412.9","Fashion","Personal & Family Care"],["2026-09-03","2026-09","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-09-04","2026-09","Amazon","INR","purchase","4139.43","4139.43","Shopping","Shopping & Entertainment"],["2026-09-04","2026-09","Cash withdrawal (ATM)","INR","purchase","3000","3000","Other","Cash, Checks & Misc"],["2026-09-05","2026-09","BigBasket","INR","purchase","1085.74","1085.74","Groceries","Groceries"],["2026-09-05","2026-09","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-09-07","2026-09","Flipkart","INR","purchase","21499","21499","Shopping","Home & Utilities"],["2026-09-09","2026-09","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-09-09","2026-09","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-09-10","2026-09","Uber","INR","purchase","188.44","188.44","Travel & Transport","Transportation"],["2026-09-10","2026-09","Zomato","INR","purchase","1202.16","1202.16","Food & Dining","Restaurants & Dining"],["2026-09-12","2026-09","BigBasket","INR","purchase","1668.33","1668.33","Groceries","Groceries"],["2026-09-12","2026-09","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-09-12","2026-09","Electricity (BESCOM)","INR","bill","2225.63","2225.63","Bills & Utilities","Home & Utilities"],["2026-09-12","2026-09","Amazon","INR","purchase","12499","12499","Shopping","Shopping & Entertainment"],["2026-09-13","2026-09","Zomato","INR","purchase","1206.56","1206.56","Food & Dining","Restaurants & Dining"],["2026-09-14","2026-09","Amazon","INR","purchase","1934.25","1934.25","Shopping","Shopping & Entertainment"],["2026-09-15","2026-09","LIC Premium","INR","bill","9100","9100","Insurance","Finance"],["2026-09-16","2026-09","Uber","INR","purchase","126.4","126.4","Travel & Transport","Transportation"],["2026-09-17","2026-09","Uber","INR","purchase","78.72","78.72","Travel & Transport","Transportation"],["2026-09-18","2026-09","Uber","INR","purchase","148.96","148.96","Travel & Transport","Transportation"],["2026-09-18","2026-09","Zomato","INR","purchase","439.74","439.74","Food & Dining","Restaurants & Dining"],["2026-09-19","2026-09","Uber","INR","purchase","117.8","117.8","Travel & Transport","Transportation"],["2026-09-19","2026-09","Zomato","INR","purchase","624.69","624.69","Food & Dining","Restaurants & Dining"],["2026-09-19","2026-09","BigBasket","INR","purchase","1467.33","1467.33","Groceries","Groceries"],["2026-09-19","2026-09","MakeMyTrip","INR","purchase","23400","23400","Travel","Travel"],["2026-09-20","2026-09","Uber","INR","purchase","106.54","106.54","Travel & Transport","Transportation"],["2026-09-20","2026-09","IndiGo","INR","purchase","11800","11800","Travel","Travel"],["2026-09-21","2026-09","Uber","INR","purchase","179.07","179.07","Travel & Transport","Transportation"],["2026-09-21","2026-09","Blinkit","INR","purchase","349.75","349.75","Groceries","Groceries"],["2026-09-22","2026-09","Uber","INR","purchase","141.45","141.45","Travel & Transport","Transportation"],["2026-09-22","2026-09","Zomato","INR","purchase","990.02","990.02","Food & Dining","Restaurants & Dining"],["2026-09-23","2026-09","Uber","INR","purchase","196.09","196.09","Travel & Transport","Transportation"],["2026-09-23","2026-09","Amazon","INR","purchase","3929.0","3929.0","Shopping","Shopping & Entertainment"],["2026-09-24","2026-09","Uber","INR","purchase","151.83","151.83","Travel & Transport","Transportation"],["2026-09-24","2026-09","Amazon","INR","purchase","2513.28","2513.28","Shopping","Shopping & Entertainment"],["2026-09-25","2026-09","Uber","USD","purchase","24.5","24.5","Travel & Transport","Transportation"],["2026-09-26","2026-09","Uber","INR","purchase","240.2","240.2","Travel & Transport","Transportation"],["2026-09-26","2026-09","BigBasket","INR","purchase","2037.92","2037.92","Groceries","Groceries"],["2026-09-27","2026-09","Amazon","INR","refund","3425.79","-3425.79","Shopping","Shopping & Entertainment"],["2026-09-27","2026-09","Amazon","INR","refund","2172.14","-2172.14","Shopping","Shopping & Entertainment"],["2026-09-27","2026-09","Uber","INR","purchase","178.11","178.11","Travel & Transport","Transportation"],["2026-09-29","2026-09","Uber","INR","purchase","81.5","81.5","Travel & Transport","Transportation"],["2026-10-01","2026-10","Uber","INR","purchase","251.24","251.24","Travel & Transport","Transportation"],["2026-10-01","2026-10","Zomato","INR","purchase","1111.76","1111.76","Food & Dining","Restaurants & Dining"],["2026-10-02","2026-10","Uber","INR","purchase","188.15","188.15","Travel & Transport","Transportation"],["2026-10-03","2026-10","BigBasket","INR","purchase","1558.51","1558.51","Groceries","Groceries"],["2026-10-03","2026-10","Society maintenance","INR","bill","9500","9500","Bills & Utilities","Home & Utilities"],["2026-10-04","2026-10","Uber","INR","purchase","120.92","120.92","Travel & Transport","Transportation"],["2026-10-04","2026-10","Zomato","INR","purchase","1224.57","1224.57","Food & Dining","Restaurants & Dining"],["2026-10-05","2026-10","Uber","INR","purchase","255.32","255.32","Travel & Transport","Transportation"],["2026-10-05","2026-10","Netflix","INR","purchase","649","649","Subscriptions","Shopping & Entertainment"],["2026-10-06","2026-10","Uber","INR","purchase","219.66","219.66","Travel & Transport","Transportation"],["2026-10-07","2026-10","Zomato","INR","purchase","715.73","715.73","Food & Dining","Restaurants & Dining"],["2026-10-08","2026-10","Uber","INR","purchase","228.33","228.33","Travel & Transport","Transportation"],["2026-10-09","2026-10","Spotify","INR","purchase","139","139","Subscriptions","Shopping & Entertainment"],["2026-10-09","2026-10","Apple Media Services","INR","purchase","219","219","Subscriptions","Shopping & Entertainment"],["2026-10-10","2026-10","Uber","INR","purchase","158.05","158.05","Travel & Transport","Transportation"],["2026-10-10","2026-10","Zomato","INR","purchase","650.0","650.0","Food & Dining","Restaurants & Dining"],["2026-10-10","2026-10","Blinkit","INR","purchase","853.18","853.18","Groceries","Groceries"],["2026-10-10","2026-10","BigBasket","INR","purchase","1059.94","1059.94","Groceries","Groceries"],["2026-10-11","2026-10","Blinkit","INR","purchase","1210.75","1210.75","Groceries","Groceries"],["2026-10-12","2026-10","Blinkit","INR","purchase","324.84","324.84","Groceries","Groceries"],["2026-10-12","2026-10","Airtel Broadband","INR","bill","799","799","Bills & Utilities","Home & Utilities"],["2026-10-12","2026-10","Electricity (BESCOM)","INR","bill","2435.56","2435.56","Bills & Utilities","Home & Utilities"],["2026-10-13","2026-10","Amazon","INR","purchase","1542.97","1542.97","Shopping","Shopping & Entertainment"],["2026-10-13","2026-10","Amazon","INR","refund","700.31","-700.31","Shopping","Shopping & Entertainment"],["2026-10-14","2026-10","Uber","INR","purchase","114.67","114.67","Travel & Transport","Transportation"],["2026-10-16","2026-10","Uber","INR","purchase","107.8","107.8","Travel & Transport","Transportation"],["2026-10-17","2026-10","Uber","INR","purchase","142.13","142.13","Travel & Transport","Transportation"]]},"runinfo":{"c":["period_from","period_to","generated_on","emails_scanned","transactions_found","fx_rate_used"],"r":[["2026-04-17","2026-10-17","2026-10-17","","308",""]]},"income":{"c":["date","source","source_type","amount","confidence"],"r":[["2026-05-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"],["2026-06-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"],["2026-06-30","Savings account interest","Interest","2905","confirmed"],["2026-07-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"],["2026-07-18","Freelance project (sample)","Other credits","22000","confirmed"],["2026-08-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"],["2026-09-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"],["2026-09-30","Savings account interest","Interest","1359","confirmed"],["2026-09-18","Freelance project (sample)","Other credits","35000","confirmed"],["2026-10-01","Salary - Acme Corp (sample)","Other credits","185000","confirmed"]]},"limits":{"c":["budget_category","monthly_limit_inr"],"r":[["Home & Utilities","25000"],["Transportation","8000"],["Groceries","14000"],["Personal & Family Care","6000"],["Health","3000"],["Restaurants & Dining","9000"],["Shopping & Entertainment","20000"],["Travel","15000"],["Cash, Checks & Misc","8000"],["Finance","10000"],["Fitness & Learning","5000"]]}};const DATA={};for(const k in RAW){const c=RAW[k].c;DATA[k]=RAW[k].r.map(r=>{const o={};c.forEach((n,i)=>o[n]=r[i]);return o})}const store={};const subs=[];
+ for(const k in DATA)store[k]={status:'ok',data:DATA[k],columns:DATA[k][0]?Object.keys(DATA[k][0]):[],message:'',refreshing:false,meta:[]};
+ window.dash={data:id=>store[id]||{status:'missing',data:[],columns:[],message:'',refreshing:false,meta:[]},
+  calc(id,o){store[id]={status:'ok',data:o.fn(...o.inputs.map(i=>store[i].data)),columns:[],message:'',refreshing:false,meta:[]}},
+  onData(fn){subs.push(fn);fn();let t;addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(fn,120)})},
+  params:()=>({}),setParams(){},resetParams(){},setLink(){},refresh(){},loader(){},colors:[]};})();
+</script>
+<style>
+.sp{max-width:1080px;margin-inline:auto;display:grid;gap:var(--cds-gap-md);font-family:var(--font-anthropic-sans);color:var(--color-fg)}
+.sp h1{font-family:var(--font-anthropic-serif);font-weight:400;font-size:var(--cds-font-size-title);margin:0}
+.sp h2{font-size:var(--cds-font-size-heading);font-weight:var(--cds-font-weight-medium);margin:0 0 2px}
+.sp .note{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption);margin:0}
+.sp .card{background:var(--color-panel);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-lg);display:grid;gap:var(--cds-gap-sm);min-width:0;align-content:start}
+.sp .grid{display:grid;gap:var(--cds-gap-md);grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))}
+.sp .warn{border:1px solid var(--color-warn);border-radius:var(--cds-radius);padding:var(--cds-pad-sm) var(--cds-pad-md);color:var(--color-warn);font-size:var(--cds-font-size-caption)}
+.sp .ns{display:flex;flex-wrap:wrap;gap:var(--cds-gap-md);align-items:flex-end}
+.sp .big{font-family:var(--font-anthropic-serif);font-weight:400;font-size:2.4rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.sp .lbl{color:var(--color-fg-muted);font-size:var(--cds-font-size-caption)}
+.sp .tiles{display:grid;gap:var(--cds-gap-sm);grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr))}
+.sp .tile{border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:var(--cds-pad-sm) var(--cds-pad-md);min-width:0}
+.sp .tile .v{font-family:var(--font-anthropic-serif);font-size:1.5rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.sp .row{display:grid;grid-template-columns:minmax(5.5rem,9rem) 1fr auto;gap:var(--cds-gap-sm);align-items:center;font-size:var(--cds-font-size-body)}
+.sp .row .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sp .trk{display:flex;height:14px;background:var(--cds-chart-grid);border-radius:4px;overflow:hidden}
+.sp .seg{height:100%}
+.sp .seg.a{background:var(--cds-chart-axis)}
+.sp .seg.m{background:var(--cds-chart-muted)}
+.sp .val{font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+.sp .key{display:flex;gap:var(--cds-gap-md);flex-wrap:wrap}
+.sp .sw{display:inline-block;width:.7rem;height:.7rem;border-radius:2px;margin-right:.3rem;vertical-align:-1px}
+.sp .tw{overflow-x:auto;max-height:26rem;overflow-y:auto}
+.sp table{width:100%;border-collapse:collapse;font-size:var(--cds-font-size-body)}
+.sp th{text-align:left;color:var(--color-fg-muted);font-weight:400;font-size:var(--cds-font-size-caption);border-bottom:1px solid var(--color-border-line);padding:6px;position:sticky;top:0;background:var(--color-panel)}
+.sp td{padding:6px;border-bottom:1px solid var(--color-border-line);vertical-align:middle}
+.sp .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.sp .lever{display:grid;gap:4px;padding:var(--cds-pad-sm) 0;border-top:1px solid var(--color-border-line)}
+.sp .lever:first-of-type{border-top:0}
+.sp .lever b{font-weight:var(--cds-font-weight-medium)}
+.sp .pill{font-size:var(--cds-font-size-caption);border:1px solid var(--color-warn);color:var(--color-warn);border-radius:99px;padding:0 .5rem;margin-left:.4rem;white-space:nowrap}
+.sp .pill.bad{border-color:var(--color-bad);color:var(--color-bad)}
+.sp .pill.ok{border-color:var(--color-ok);color:var(--color-ok)}
+.sp [data-dash-source-state=empty]{color:transparent}
+.sp .box{min-height:6rem}
+.sp .ctl{display:flex;flex-wrap:wrap;gap:var(--cds-gap-sm);align-items:center}
+.sp .seg-btns{display:inline-flex;border:1px solid var(--color-border-line);border-radius:var(--cds-radius);overflow:hidden}
+.sp .seg-btns button{background:transparent;color:var(--color-fg);border:0;padding:6px 14px;font:inherit;cursor:pointer;border-right:1px solid var(--color-border-line)}
+.sp .seg-btns button:last-child{border-right:0}
+.sp .seg-btns button[aria-pressed=true]{background:var(--color-fg);color:var(--color-bg)}
+.sp .ctl input,.sp .ctl select{font:inherit;color:var(--color-fg);background:var(--color-bg);border:1px solid var(--color-border-line);border-radius:var(--cds-radius);padding:5px 8px}
+.sp .lim{width:6.2rem;text-align:right;font-variant-numeric:tabular-nums}
+.sp .meter{height:10px;background:var(--cds-chart-grid);border-radius:5px;overflow:hidden;min-width:5rem}
+.sp .meter i{display:block;height:100%;background:var(--cds-chart-axis)}
+.sp .meter i.warn{background:var(--color-warn)}
+.sp .meter i.bad{background:var(--cds-chart-status-critical)}
+.sp .chartbox{position:relative;min-height:220px}
+.sp .tip{position:absolute;pointer-events:none;background:var(--cds-surface-popover);border:1px solid var(--cds-border);border-radius:var(--cds-radius);box-shadow:var(--cds-shadow-popover);padding:var(--cds-pad-xs) var(--cds-pad-sm);font-size:var(--cds-font-size-caption);white-space:nowrap;display:none;z-index:2}
+.sp .chk{display:flex;gap:.4rem;align-items:center;font-size:var(--cds-font-size-caption);color:var(--color-fg-muted)}
+.sp .net-pos{color:var(--color-ok)}.sp .net-neg{color:var(--color-bad)}
+/* friendly theme */
+.sp{--cds-radius:18px;--cds-pad-lg:20px;--cds-gap-md:18px;--cds-chart-axis:#ff7a59;--cds-chart-muted:#2bb59a;--cds-chart-grid:#f1e6dc;--color-ok:#128a6a;--color-warn:#c76a00;--color-bad:#d92d4b;--cds-chart-status-critical:#d92d4b;
+ --c1:#fff1ec;--c2:#e8f7f2;--c3:#eef0ff;--c4:#fff7e0;--c5:#fdeefa;--ink:#2a2140;--acc:#6c4cf0;
+ font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,sans-serif;color:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sp{--c1:#3a2620;--c2:#1c3a33;--c3:#26274a;--c4:#3a3220;--c5:#3a2438;--ink:#f4efff;--acc:#a592ff;--cds-chart-grid:#3a3347;--cds-chart-axis:#ff8f70;--cds-chart-muted:#47d1b4}}
+:root[data-theme=dark] .sp{--c1:#3a2620;--c2:#1c3a33;--c3:#26274a;--c4:#3a3220;--c5:#3a2438;--ink:#f4efff;--acc:#a592ff;--cds-chart-grid:#3a3347;--cds-chart-axis:#ff8f70;--cds-chart-muted:#47d1b4}
+.sp{color:var(--ink)}
+.sp h1{font-family:inherit;font-weight:800;font-size:2rem;letter-spacing:-.02em;background:linear-gradient(90deg,#ff7a59,#6c4cf0);-webkit-background-clip:text;background-clip:text;color:transparent;width:fit-content}
+.sp h2{font-weight:700;font-size:1.05rem}
+.sp .big,.sp .tile .v{font-family:inherit;font-weight:800;letter-spacing:-.02em}
+.sp .card{border:0;box-shadow:0 2px 0 rgba(0,0,0,.04),0 8px 24px rgba(108,76,240,.08);background:var(--c3)}
+.sp #periodpick{background:var(--c4)}
+.sp #inc-card{background:var(--c2)}
+.sp .grid>.card:nth-child(2){background:var(--c3)}
+.sp>.card:nth-of-type(4){background:var(--c1)}
+.sp .tile{border:0;background:rgba(255,255,255,.65);border-radius:14px;box-shadow:0 1px 0 rgba(0,0,0,.05)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .sp .tile{background:rgba(255,255,255,.07)}}
+:root[data-theme=dark] .sp .tile{background:rgba(255,255,255,.07)}
+.sp .warn{border:0;background:var(--c4);border-radius:14px;padding:10px 14px}
+.sp .seg-btns{border:0;background:rgba(0,0,0,.06);border-radius:99px;padding:3px;gap:2px}
+.sp .seg-btns button{border:0;border-radius:99px;font-weight:600}
+.sp .seg-btns button[aria-pressed=true]{background:var(--acc);color:#fff;box-shadow:0 2px 8px rgba(108,76,240,.4)}
+.sp .ctl input,.sp .ctl select{border-radius:12px;border:1.5px solid rgba(108,76,240,.25)}
+.sp .meter,.sp .trk{height:12px;border-radius:99px}
+.sp .meter i{background:linear-gradient(90deg,#2bb59a,#7be0c8);border-radius:99px}
+.sp .meter i.warn{background:linear-gradient(90deg,#ffb020,#ffd36b)}
+.sp .meter i.bad{background:linear-gradient(90deg,#ff5d73,#ff9a8a)}
+.sp .pill{border:0;background:rgba(199,106,0,.14);font-weight:600;padding:2px 10px}
+.sp .pill.bad{background:rgba(217,45,75,.14)}.sp .pill.ok{background:rgba(18,138,106,.15)}
+.sp th{background:transparent;border-bottom:2px solid rgba(108,76,240,.15)}
+.sp td{border-bottom:1px dashed rgba(108,76,240,.18)}
+.sp .lever{border-top:1px dashed rgba(108,76,240,.25)}
+.sp .lever b{color:var(--acc)}
+.sp .seg{border-radius:99px}
+body{background:linear-gradient(180deg,#fff7f2,#f3f0ff 60%,#eefaf6)!important}@media (prefers-color-scheme:dark){body{background:#17131f!important}}</style>
+<div class="sp">
+  <div>
+    <h1 id="title">Personal spend dashboard</h1>
+    <p class="note" id="period">&nbsp;</p>
+  </div>
+  <div class="warn" id="gaps"><b>Demo with sample data.</b> Every transaction here is made up. The real version reads my Gmail bank and shopping alerts and stays private. Net spend is after refunds.</div>
+
+  <section class="card" id="periodpick">
+    <h2>Period</h2>
+    <div class="ctl">
+      <div class="seg-btns" role="group" aria-label="Period type">
+        <button type="button" id="m-day" data-mode="day">Day</button>
+        <button type="button" id="m-month" data-mode="month">Month</button>
+        <button type="button" id="m-year" data-mode="year">Year</button>
+        <button type="button" id="m-custom" data-mode="custom">Custom</button>
+      </div>
+      <input type="date" id="in-day" aria-label="Day" min="2000-01-01" max="2099-12-31">
+      <input type="month" id="in-month" aria-label="Month" min="2000-01" max="2099-12">
+      <select id="in-year" aria-label="Year"></select>
+      <span id="in-custom" class="ctl"><input type="date" id="in-from" aria-label="From" min="2000-01-01" max="2099-12-31"><span class="lbl">to</span><input type="date" id="in-to" aria-label="To" min="2000-01-01" max="2099-12-31"></span>
+    </div>
+    <p class="note" id="range-note"></p>
+  </section>
+
+  <div class="grid">
+    <section class="card" id="inc-card">
+      <h2>Income vs spend</h2>
+      <p class="note" id="inc-note"></p>
+      <div class="tiles" id="ivs"></div>
+      <div class="key"><label class="chk"><input type="checkbox" id="c-int" checked>Interest</label><label class="chk"><input type="checkbox" id="c-oth" checked>Other credits</label><label class="chk"><input type="checkbox" id="c-chq">Cheque deposits</label></div>
+      <div class="tw" style="max-height:14rem"><table id="inc-src"><thead><tr><th>Income source</th><th>Status</th><th class="r">Amount</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    <section class="card">
+      <h2>Spend and income over time</h2>
+      <p class="note" id="trend-note"></p>
+      <div class="key"><span class="lbl"><i class="sw" style="background:var(--cds-chart-axis)"></i>Spend</span><span class="lbl"><i class="sw" style="background:var(--cds-chart-muted)"></i>Income</span></div>
+      <div class="chartbox" id="trend"></div>
+      <div class="tw" id="daylist" style="display:none"></div>
+    </section>
+  </div>
+
+  <section class="card" id="cat-card">
+    <h2>Spend by category against limits</h2>
+    <p class="note" id="cat-note"></p>
+    <div class="tw" style="max-height:none"><table id="cats"><thead><tr><th>Category</th><th class="r">Spent</th><th class="r">Limit for period</th><th style="min-width:7rem">Used</th><th>Status</th><th class="r">Monthly limit</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section class="card" id="northstar-card">
+    <h2>North Star: everyday spend per month</h2>
+    <p class="note">Net of refunds, in INR. Everyday spend leaves out big-ticket home and appliance purchases (Urban Ladder, Wooden Street, Havells, Flipkart) and Bills &amp; Utilities, which are one-off or fixed.</p>
+    <div class="ns">
+      <div><div class="lbl" id="ns-label">Latest full month</div><div class="big" id="ns-val" data-source="northstar" data-where="month=2026-09" data-field="everyday">—</div></div>
+      <div><div class="lbl">Change from month before</div><div class="big" id="ns-chg" style="font-size:1.6rem">—</div></div>
+    </div>
+    <div class="key"><span class="lbl"><i class="sw" style="background:var(--cds-chart-axis)"></i>Everyday</span><span class="lbl"><i class="sw" style="background:var(--cds-chart-muted)"></i>Big-ticket and bills</span></div>
+    <div id="months" class="box" data-source="northstar"></div>
+  </section>
+
+  <section class="tiles" id="tiles"></section>
+  <p class="note" id="usd"></p>
+
+  <section class="card" id="levers-card">
+    <h2>Where to cut</h2>
+    <p class="note">Largest levers first. Every figure comes from your analysed transactions.</p>
+    <div id="levers" class="box"></div>
+  </section>
+
+  <div class="grid">
+    <section class="card"><h2>Top 10 merchants</h2><p class="note">Net spend in INR after refunds.</p><div id="merch" class="box" data-source="merch"></div></section>
+    <section class="card"><h2>Recurring subscriptions and bills</h2><p class="note">Same merchant and amount in two or more months.</p>
+      <div class="tw"><table id="subs" data-source="subs" data-row-key="merchant,amount"><thead><tr><th data-field="merchant">Merchant</th><th class="r" data-field="amount">Amount</th><th class="r" data-field="months_seen">Months</th><th class="r" data-field="last_charged">Last charged</th></tr></thead><tbody></tbody></table></div></section>
+  </div>
+  <section class="card"><h2>Largest purchases</h2><p class="note">Gross amount of each transaction.</p>
+    <div class="tw"><table id="top" data-source="top" data-row-key="view_url"><thead><tr><th data-field="date">Date</th><th data-field="merchant">Merchant</th><th class="r" data-field="amount">Amount</th></tr></thead><tbody></tbody></table></div></section>
+  <section class="card" id="how">
+    <h2>How it is built</h2>
+    <p class="note">A small pipeline of AI agents turns a mailbox into decisions. This page is the last step.</p>
+    <div class="lever"><b>1. Read</b><div>Agent 1 searches Gmail (read-only) for bank, UPI, shopping and delivery alerts and writes one clean row per transaction.</div></div>
+    <div class="lever"><b>2. Analyse</b><div>Agent 2 removes duplicates, pairs refunds with orders, sorts spend into 11 budget categories and finds subscriptions. Agent 2b adds the budget categories, and Agent 1b collects income.</div></div>
+    <div class="lever"><b>3. Decide</b><div>Agent 3 builds this dashboard. The north-star metric is everyday spend per month, with six savings levers. Each category has a limit and a status.</div></div>
+    <div class="lever"><b>4. Repeat</b><div>A scheduled task re-runs the whole pipeline every Monday. Personal data never leaves my machine and the cloud workspace, and this public copy uses generated data.</div></div>
+    <p class="note">Built with Claude (agents, Gmail connector, scheduled tasks), Python, d3 and Vercel.</p>
+  </section>
+  <p class="note" id="foot"></p>
+</div>
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const fmt=n=>(n<0?'-':'')+'₹'+Math.abs(Number(n)).toLocaleString('en-IN',{maximumFractionDigits:0});
+const compact=n=>{n=Number(n);const a=Math.abs(n),s=n<0?'-':'';return a>=1e7?s+'₹'+(a/1e7).toFixed(2)+' Cr':a>=1e5?s+'₹'+(a/1e5).toFixed(2)+' L':fmt(n)};
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ml=m=>MON[+m.slice(5)-1]+' '+m.slice(0,4);
+const fd=d=>{const p=d.split('-');return +p[2]+' '+MON[+p[1]-1]+' '+p[0]};
+const mk=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e};
+const iso=d=>d.toISOString().slice(0,10);
+const addDays=(s,n)=>{const d=new Date(s+'T00:00:00Z');d.setUTCDate(d.getUTCDate()+n);return iso(d)};
+const dim=m=>new Date(Date.UTC(+m.slice(0,4),+m.slice(5,7),0)).getUTCDate();
+
+dash.calc('northstar',{title:'Everyday spend by month',description:'Net INR spend per month, split into everyday spend and big-ticket or bill spend.',inputs:['txns'],fn:(txns)=>{
+  const big=['Urban Ladder','Wooden Street','Havells India Limited','Flipkart'];
+  const by={};
+  for(const r of txns){ if(r.currency!=='INR')continue;
+    const m=r.month; by[m]=by[m]||{month:m,everyday:0,fixed:0,n:0};
+    const v=Number(r.signed_amount);
+    if(big.includes(r.merchant)||r.category==='Bills & Utilities')by[m].fixed+=v; else by[m].everyday+=v;
+    if(r.type!=='refund')by[m].n+=1;
+  }
+  return Object.values(by).sort((a,b)=>a.month<b.month?-1:1).map(o=>({month:o.month,everyday:Math.round(o.everyday),fixed:Math.round(o.fixed),n:o.n}));
+}});
+
+dash.calc('spend_days',{title:'Spend per day and category',description:'Net INR spend per day for each budget category.',inputs:['txns'],fn:(txns)=>{
+  const by={};
+  for(const r of txns){ if(r.currency!=='INR')continue;
+    const k=r.date+'|'+r.budget_category;
+    by[k]=by[k]||{date:r.date,cat:r.budget_category,spend:0,n:0};
+    by[k].spend+=Number(r.signed_amount);
+    if(r.type!=='refund')by[k].n+=1;
+  }
+  return Object.values(by).map(o=>({date:o.date,cat:o.cat,spend:Math.round(o.spend*100)/100,n:o.n}));
+}});
+
+dash.calc('levers',{title:'Cut levers',description:'Counts and amounts behind each suggested saving, INR.',inputs:['txns','subs'],fn:(txns,subs)=>{
+  const inr=txns.filter(r=>r.currency==='INR');
+  const big=['Urban Ladder','Wooden Street','Havells India Limited','Flipkart'];
+  const buys=f=>inr.filter(r=>f(r)&&r.type!=='refund');
+  const sum=(a,k)=>a.reduce((s,r)=>s+Number(r[k]),0);
+  const row=(id,n,amt,aux,rate)=>({id,n:Math.round(n),amt:Math.round(amt),aux:Math.round(aux),rate:Math.round(rate)});
+  const bt=buys(r=>big.includes(r.merchant));
+  const bn=inr.filter(r=>big.includes(r.merchant));
+  const am=buys(r=>r.merchant==='Amazon');
+  const amRef=-sum(inr.filter(r=>r.merchant==='Amazon'&&r.type==='refund'),'signed_amount');
+  const amGross=sum(am,'amount');
+  const amBig=am.filter(r=>Number(r.amount)>=10000);
+  const z=buys(r=>r.merchant==='Zomato'), b=buys(r=>r.merchant==='Blinkit');
+  const f=buys(r=>/myntra|nykaa/i.test(r.merchant));
+  const s=subs.filter(r=>r.currency==='INR');
+  return [
+    row('bigticket',bt.length,sum(bn,'signed_amount'),amBig.length,0),
+    row('amazon',am.length,amGross,amRef,amGross?amRef/amGross*100:0),
+    row('zomato',z.length,sum(z,'amount'),z.length?sum(z,'amount')/z.length:0,0),
+    row('blinkit',b.length,sum(b,'amount'),b.length?sum(b,'amount')/b.length:0,0),
+    row('fashion',f.length,sum(f,'amount'),0,0),
+    row('subs',s.length,sum(s,'amount'),0,0)
+  ];
+}});
+
+function bars(el,items){
+  el.replaceChildren();
+  const mx=Math.max(...items.map(i=>Math.abs(i.v)),1);
+  for(const i of items){
+    const r=mk('div','row'),nm=mk('div','nm',i.n);nm.title=i.n;
+    const t=mk('div','trk'),s=mk('div','seg a');s.style.width=Math.max(Math.abs(i.v)/mx*100,1)+'%';t.append(s);
+    r.append(nm,t,mk('div','val',compact(i.v)));el.append(r);
+  }
+}
+
+// ---- period state
+const S={mode:'month',day:'',month:'',year:'',from:'',to:'',cheq:false,oth:true,int:true,lim:{}};
+let ctx=null; // cached data for re-render on control changes
+function range(){
+  const d=ctx.cover;
+  if(S.mode==='day')return {from:S.day,to:S.day};
+  if(S.mode==='month'){const m=S.month;return {from:m+'-01',to:m+'-'+String(dim(m)).padStart(2,'0')}}
+  if(S.mode==='year')return {from:S.year+'-01-01',to:S.year+'-12-31'};
+  return {from:S.from<=S.to?S.from:S.to,to:S.from<=S.to?S.to:S.from};
+}
+function covDays(r){ // days of the range inside the data window
+  const a=r.from<ctx.cover.from?ctx.cover.from:r.from, b=r.to>ctx.cover.to?ctx.cover.to:r.to;
+  const out=[];for(let d=a;d<=b;d=addDays(d,1))out.push(d);return out;
+}
+function render(){
+  if(!ctx)return;
+  for(const b of document.querySelectorAll('.seg-btns button'))b.setAttribute('aria-pressed',String(b.dataset.mode===S.mode));
+  $('#in-day').hidden=S.mode!=='day';$('#in-month').hidden=S.mode!=='month';$('#in-year').hidden=S.mode!=='year';$('#in-custom').hidden=S.mode!=='custom';
+  const R=range(), days=covDays(R);
+  $('#range-note').textContent=(R.from===R.to?fd(R.from):fd(R.from)+' to '+fd(R.to))+'. '+days.length+' day'+(days.length===1?'':'s')+' fall inside the data window ('+fd(ctx.cover.from)+' to '+fd(ctx.cover.to)+'). Limits are prorated to those days.';
+  const inR=d=>d>=R.from&&d<=R.to;
+  // spend by category
+  const spend={};let totalSpend=0;
+  for(const r of ctx.days){if(!inR(r.date))continue;const v=Number(r.spend);spend[r.cat]=(spend[r.cat]||0)+v;totalSpend+=v}
+  const limFor=c=>{let t=0;const ml0=S.lim[c]!=null?S.lim[c]:ctx.limits[c];for(const d of days)t+=ml0/dim(d.slice(0,7));return t};
+  const tb=$('#cats tbody');tb.replaceChildren();
+  let over=0;
+  const cats=ctx.cats.slice();for(const c of Object.keys(spend))if(!cats.includes(c))cats.push(c);
+  for(const c of cats){
+    const sp=spend[c]||0, lim=limFor(c)||0, pct=lim?sp/lim*100:0;
+    const st=pct>100?'bad':pct>=80?'warn':'ok';if(st==='bad')over++;
+    const tr=mk('tr');
+    tr.append(mk('td',null,c),mk('td','r',fmt(sp)),mk('td','r',fmt(lim)));
+    const m=mk('td');const me=mk('div','meter');const bi=mk('i',st==='ok'?'':st);bi.style.width=Math.min(Math.max(pct,0),100)+'%';me.append(bi);m.append(me);
+    const pl=mk('span','pill '+(st==='ok'?'ok':st==='bad'?'bad':''),st==='bad'?'Over by '+fmt(sp-lim):st==='warn'?'Near limit, '+Math.round(pct)+'%':Math.round(Math.max(pct,0))+'% used');
+    tr.append(m,mk('td'),mk('td','r'));tr.children[4].append(pl);
+    const inp=mk('input','lim');inp.type='number';inp.min='0';inp.step='500';inp.value=String(S.lim[c]!=null?S.lim[c]:ctx.limits[c]||0);inp.setAttribute('aria-label','Monthly limit for '+c);
+    inp.addEventListener('change',()=>{const v=Number(inp.value);if(isFinite(v)&&v>=0){S.lim[c]=v;render()}});
+    tr.children[5].append(inp);
+    tb.append(tr);
+  }
+  $('#cat-note').textContent=over?over+' of '+cats.length+' categories are over their limit for this period. Spend is net of refunds. Edit a monthly limit to try another number; edits last until you leave the page.':'No category is over its limit for this period. Spend is net of refunds. Edit a monthly limit to try another number; edits last until you leave the page.';
+  // income
+  const typeOn={'Interest':S.int,'Other credits':S.oth,'Cheque deposits':S.cheq};
+  const incRows=ctx.income.filter(r=>inR(r.date)&&typeOn[r.source_type]);
+  const incTotal=incRows.reduce((s,r)=>s+Number(r.amount),0);
+  const net=incTotal-totalSpend;
+  const tl=$('#ivs');tl.replaceChildren();
+  for(const [l,v,cls] of [['Income',compact(incTotal)],['Spend',compact(totalSpend)],['Income minus spend',compact(net),net>=0?'net-pos':'net-neg'],['Spend as share of income',incTotal>0?Math.round(totalSpend/incTotal*100)+'%':'no income']]){
+    const t=mk('div','tile');t.append(mk('div','lbl',l));t.append(mk('div','v'+(cls?' '+cls:''),v));
+    if(cls){t.lastChild.className='v '+cls}tl.append(t)}
+  const by={};for(const r of incRows){const k=r.source_type+'|'+r.source+'|'+r.confidence;by[k]=by[k]||{t:r.source_type,s:r.source,c:r.confidence,a:0,n:0};by[k].a+=Number(r.amount);by[k].n++}
+  const ib=$('#inc-src tbody');ib.replaceChildren();
+  const list=Object.values(by).sort((a,b)=>b.a-a.a);
+  if(!list.length){const tr=mk('tr');const td=mk('td',null,'No income in this period for the sources ticked.');td.colSpan=3;tr.append(td);ib.append(tr)}
+  for(const o of list){const tr=mk('tr');tr.append(mk('td',null,o.s+' ('+o.n+')'),mk('td',null,o.c==='confirmed'?'Confirmed':'Source not stated'),mk('td','r',fmt(o.a)));ib.append(tr)}
+  $('#inc-note').textContent='Income is bank credits excluding refunds and reversals. In this demo: a sample salary, interest and two freelance payments.';
+  // trend buckets
+  const nd=Math.round((new Date(R.to)-new Date(R.from))/864e5)+1;
+  const dayMode=S.mode==='day';
+  const monthly=!dayMode&&(S.mode==='year'||(S.mode==='custom'&&nd>62));
+  const dl=$('#daylist'),tr0=$('#trend');
+  if(dayMode){
+    tr0.style.display='none';dl.style.display='';dl.replaceChildren();
+    const rows=ctx.txns.filter(r=>r.date===S.day&&r.currency==='INR');
+    $('#trend-note').textContent=rows.length?rows.length+' transactions on '+fd(S.day)+'.':'No transactions on '+fd(S.day)+'.';
+    if(rows.length){const t=mk('table');const th=mk('thead');const hr=mk('tr');for(const h of ['Merchant','Category','Amount'])hr.append(mk('th',h==='Amount'?'r':null,h));th.append(hr);t.append(th);const bd=mk('tbody');
+      for(const r of rows){const tr=mk('tr');tr.append(mk('td',null,r.merchant),mk('td',null,r.budget_category),mk('td','r',fmt(r.signed_amount)));bd.append(tr)}t.append(bd);dl.append(t)}
+    const incD=ctx.income.filter(r=>r.date===S.day&&typeOn[r.source_type]).reduce((s,r)=>s+Number(r.amount),0);
+    if(incD){dl.append(mk('p','note','Income on this day: '+fmt(incD)))}
+  }else{
+    dl.style.display='none';tr0.style.display='';
+    const keyOf=monthly?(d=>d.slice(0,7)):(d=>d);
+    const keys=[];const seen=new Set();for(let d=R.from;d<=R.to;d=addDays(d,1)){const k=keyOf(d);if(!seen.has(k)){seen.add(k);keys.push(k)}}
+    const sp0={},in0={};
+    for(const r of ctx.days)if(inR(r.date))sp0[keyOf(r.date)]=(sp0[keyOf(r.date)]||0)+Number(r.spend);
+    for(const r of incRows)in0[keyOf(r.date)]=(in0[keyOf(r.date)]||0)+Number(r.amount);
+    $('#trend-note').textContent=(monthly?'Per month':'Per day')+', INR, spend net of refunds.';
+    drawTrend(tr0,keys.map(k=>({k,s:sp0[k]||0,i:in0[k]||0})),monthly);
+  }
+}
+function drawTrend(el,data,monthly){
+  el.replaceChildren();
+  const W=Math.max(el.clientWidth||320,260),H=220,m={t:10,r:8,b:30,l:52};
+  const mx=Math.max(1,...data.map(d=>Math.max(d.s,d.i)));
+  const x0=d3.scaleBand().domain(data.map(d=>d.k)).range([m.l,W-m.r]).paddingInner(.2);
+  const x1=d3.scaleBand().domain(['s','i']).range([0,x0.bandwidth()]).padding(.05);
+  const y=d3.scaleLinear([0,mx*1.05],[H-m.b,m.t]).nice();
+  const svg=d3.select(el).append('svg').attr('width','100%').attr('viewBox','0 0 '+W+' '+H);
+  const g=svg.append('g');
+  for(const t of y.ticks(4)){g.append('line').attr('x1',m.l).attr('x2',W-m.r).attr('y1',y(t)).attr('y2',y(t)).style('stroke','var(--cds-chart-grid)');
+    g.append('text').attr('x',m.l-6).attr('y',y(t)+4).attr('text-anchor','end').style('fill','var(--color-fg-muted)').style('font-size','11px').text(compact(t).replace('₹',''))}
+  const tip=mk('div','tip');el.append(tip);
+  const every=Math.ceil(data.length/Math.max(2,Math.floor((W-m.l)/58)));
+  data.forEach((d,idx)=>{
+    const bx=x0(d.k);
+    for(const [kk,col,v] of [['s','var(--cds-chart-axis)',d.s],['i','var(--cds-chart-muted)',d.i]]){
+      const h=Math.max(0,y(0)-y(Math.max(v,0)));
+      g.append('rect').attr('x',bx+x1(kk)).attr('y',y(Math.max(v,0))).attr('width',Math.max(1,x1.bandwidth())).attr('height',h).attr('rx',2).style('fill',col);
+    }
+    g.append('rect').attr('x',bx).attr('y',m.t).attr('width',x0.bandwidth()).attr('height',H-m.b-m.t).style('fill','transparent')
+      .on('mousemove',ev=>{const r=el.getBoundingClientRect();tip.style.display='block';tip.textContent=(monthly?ml(d.k):fd(d.k))+'  Spend '+fmt(d.s)+'  Income '+fmt(d.i);
+        const tw=tip.offsetWidth;tip.style.left=Math.min(Math.max(ev.clientX-r.left-tw/2,0),r.width-tw)+'px';tip.style.top=Math.max(ev.clientY-r.top-34,0)+'px'})
+      .on('mouseleave',()=>{tip.style.display='none'});
+    if(idx%every===0)g.append('text').attr('x',bx+x0.bandwidth()/2).attr('y',H-10).attr('text-anchor','middle').style('fill','var(--color-fg-muted)').style('font-size','11px').text(monthly?MON[+d.k.slice(5)-1]:String(+d.k.slice(8)));
+  });
+}
+
+dash.onData(()=>{
+  const ids=['kpis','merch','subs','top','txns','runinfo','income','limits'];
+  const D=Object.fromEntries(ids.map(i=>[i,dash.data(i)]));
+  const ns=dash.data('northstar'), lv=dash.data('levers'), sd=dash.data('spend_days');
+  if(ids.some(i=>D[i].status!=='ok')||ns.status!=='ok'||lv.status!=='ok'||sd.status!=='ok')return;
+  const ri=D.runinfo.data[0];
+  $('#period').textContent='Period '+fd(ri.period_from)+' to '+fd(ri.period_to)+'. Generated '+fd(ri.generated_on)+'. Sample data.';
+  // north star
+  const rows=ns.data, runM=ri.period_to.slice(0,7);
+  const full=rows.filter(r=>r.month<runM);
+  const last=full[full.length-1], prev=full[full.length-2];
+  if(last){
+    $('#ns-label').textContent='Everyday spend in '+ml(last.month)+' (latest full month)';
+    const v=$('#ns-val');v.dataset.where='month='+last.month;v.textContent=fmt(last.everyday);
+    if(prev&&prev.everyday){
+      const c=(last.everyday-prev.everyday)/Math.abs(prev.everyday)*100;
+      const e=$('#ns-chg');e.textContent=(c>0?'+':'')+c.toFixed(1)+'% vs '+ml(prev.month);
+      e.style.color=c<=0?'var(--color-ok)':'var(--color-bad)';
+    }
+  }
+  const mx=Math.max(...rows.map(r=>Math.abs(r.everyday)+Math.abs(r.fixed)),1);
+  const maxN=Math.max(...rows.map(r=>r.n));
+  const box=$('#months');box.replaceChildren();
+  for(const r of rows){
+    const part=r.month===runM||r.n<0.25*maxN;
+    const row=mk('div','row'),nm=mk('div','nm',ml(r.month));
+    const t=mk('div','trk');
+    const a=mk('div','seg a'),f=mk('div','seg m');
+    a.style.width=Math.max(Math.abs(r.everyday)/mx*100,0)+'%';f.style.width=Math.max(Math.abs(r.fixed)/mx*100,0)+'%';
+    t.append(a,f);
+    const val=mk('div','val',compact(r.everyday)+' / '+compact(r.fixed));
+    if(part)val.append(mk('span','pill','partial'));
+    row.append(nm,t,val);box.append(row);
+  }
+  // kpis
+  const kp=(m,c)=>{const x=D.kpis.data.find(r=>r.metric===m&&r.currency===c);return x?x.value:''};
+  const tiles=$('#tiles');tiles.replaceChildren();
+  const T=[['Net spend',compact(kp('total_spend','INR')),'total_spend'],['Gross spend',compact(kp('gross_spend','INR')),'gross_spend'],['Refunds',compact(kp('refunds_total','INR')),'refunds_total'],['Orders',Number(kp('order_count','INR')).toLocaleString('en-IN'),'order_count'],['Average order',fmt(kp('avg_order_value','INR')),'avg_order_value'],['Top merchant',kp('top_merchant','INR'),'top_merchant']];
+  for(const [l,v,m] of T){
+    const t=mk('div','tile');t.append(mk('div','lbl',l));
+    const e=mk('div','v',v);e.dataset.source='kpis';e.dataset.where='metric='+m+'&currency=INR';e.dataset.field='value';
+    t.append(e);tiles.append(t);
+  }
+  $('#usd').textContent='USD (separate, never converted): $'+Number(kp('total_spend','USD')).toFixed(2)+' across '+kp('order_count','USD')+' order, top merchant '+kp('top_merchant','USD')+'.';
+  // levers
+  const L=Object.fromEntries(lv.data.map(r=>[r.id,r]));
+  const lvEl=$('#levers');lvEl.replaceChildren();
+  const num=(id,field,fn)=>{const s=mk('b',null,fn(L[id][field]));s.dataset.source='levers';s.dataset.where='id='+id;s.dataset.field=field;return s};
+  const n0=x=>String(x), pc=x=>x+'%';
+  const add=(title,parts)=>{const d=mk('div','lever');d.append(mk('b',null,title));const p=mk('div');p.style.color='var(--color-fg-muted)';for(const x of parts)p.append(typeof x==='string'?document.createTextNode(x):x);d.append(p);lvEl.append(d)};
+  add('1. Add a waiting period for purchases over ₹10,000',['Big-ticket merchants took ',num('bigticket','amt',compact),' net across ',num('bigticket','n',n0),' orders, and Amazon had ',num('bigticket','aux',n0),' orders of ₹10,000 or more. Wait 48 hours before anything over ₹10,000 and 7 days before anything over ₹25,000.']);
+  add('2. Cut buy-and-return churn on Amazon',['Refunds came to ',num('amazon','aux',compact),' on ',num('amazon','amt',compact),' of Amazon orders, a return rate of ',num('amazon','rate',pc),'. Refunds land as Amazon Pay balance, which only spends on Amazon. Order from a saved list once a week.']);
+  add('3. Limit food delivery',['Zomato: ',num('zomato','n',n0),' orders, ',num('zomato','amt',compact),', about ',num('zomato','aux',fmt),' each. Cap it at a few orders a month.']);
+  add('4. Plan groceries instead of quick commerce',['Blinkit: ',num('blinkit','n',n0),' orders, ',num('blinkit','amt',compact),', about ',num('blinkit','aux',fmt),' per order. One weekly grocery run replaces most of these.']);
+  add('5. Park fashion and beauty carts for 72 hours',['Myntra and Nykaa: ',num('fashion','n',n0),' orders, ',num('fashion','amt',compact),'.']);
+  add('6. Audit subscriptions and recurring bills',[num('subs','n',n0),' recurring charges add up to ',num('subs','amt',fmt),' a month. Cancel duplicates (Netflix and Apple each appear at several amounts) and anything unused for 30 days.']);
+  // merchants
+  const inr=r=>r.currency==='INR';
+  bars($('#merch'),D.merch.data.filter(inr).sort((a,b)=>b.spend-a.spend).slice(0,10).map(r=>({n:r.merchant,v:+r.spend})));
+  // tables
+  const sb=$('#subs tbody');sb.replaceChildren();
+  for(const r of D.subs.data){const tr=mk('tr');tr.dataset.key=encodeURIComponent(r.merchant)+','+encodeURIComponent(r.amount);
+    tr.append(mk('td',null,r.merchant),mk('td','r',r.currency==='USD'?'$'+Number(r.amount).toFixed(2):fmt(r.amount)),mk('td','r',r.months_seen),mk('td','r',fd(r.last_charged)));sb.append(tr)}
+  const tb=$('#top tbody');tb.replaceChildren();
+  for(const r of D.top.data.slice(0,10)){const tr=mk('tr');tr.dataset.key=r.view_url;
+    tr.append(mk('td',null,fd(r.date)),mk('td',null,r.merchant),mk('td','r',r.currency==='USD'?'$'+Number(r.amount).toFixed(2):fmt(r.amount)));tb.append(tr)}
+  $('#foot').textContent='Sample data for demonstration. Category limits are editable on the page and are not advice.';
+  // period controls setup (once)
+  const allDates=sd.data.map(r=>r.date).sort();
+  const first=ri.period_from, lastD=ri.period_to;
+  const fresh=!ctx;
+  ctx={days:sd.data,income:D.income.data,txns:D.txns.data,limits:Object.fromEntries(D.limits.data.map(r=>[r.budget_category,Number(r.monthly_limit_inr)])),cats:D.limits.data.map(r=>r.budget_category),cover:{from:first,to:lastD}};
+  if(fresh){
+    S.day=allDates[allDates.length-1];S.month=last?last.month:lastD.slice(0,7);S.year=lastD.slice(0,4);S.from=first;S.to=lastD;
+    const ys=[...new Set(allDates.map(d=>d.slice(0,4)))];const sel=$('#in-year');sel.replaceChildren(...ys.map(y=>new Option(y,y)));
+    $('#in-day').value=S.day;$('#in-month').value=S.month;sel.value=S.year;$('#in-from').value=S.from;$('#in-to').value=S.to;
+    for(const b of document.querySelectorAll('.seg-btns button'))b.addEventListener('click',()=>{S.mode=b.dataset.mode;render()});
+    const val=(el,ok,apply)=>el.addEventListener('change',()=>{if(el.value&&el.validity.valid&&ok(el.value)){apply(el.value);render()}});
+    val($('#in-day'),v=>/^\d{4}-\d\d-\d\d$/.test(v),v=>S.day=v);
+    val($('#in-month'),v=>/^\d{4}-\d\d$/.test(v),v=>S.month=v);
+    val($('#in-year'),v=>true,v=>S.year=v);
+    val($('#in-from'),v=>/^\d{4}-\d\d-\d\d$/.test(v),v=>S.from=v);
+    val($('#in-to'),v=>/^\d{4}-\d\d-\d\d$/.test(v),v=>S.to=v);
+    $('#c-int').addEventListener('change',e=>{S.int=e.target.checked;render()});
+    $('#c-oth').addEventListener('change',e=>{S.oth=e.target.checked;render()});
+    $('#c-chq').addEventListener('change',e=>{S.cheq=e.target.checked;render()});
+  }
+  render();
+});
+})();
+</script>
+
+</body></html>
